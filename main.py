@@ -1,37 +1,47 @@
-from fastapi import FastAPI, Header
-from typing import Optional
+from fastapi import FastAPI
 from pydantic import BaseModel
-
-
-class BookCreateModel(BaseModel):
-    title: str
-    author: str
-
+from typing import List
+import json
 
 app = FastAPI()
 
 
-@app.get("/health")
+class Book(BaseModel):
+    id: int
+    title: str
+    author: str
+    publisher: str
+    published_date: str
+    page_count: int
+    language: str
+
+
+@app.get("/health", status_code=200)
 async def health():
-    return {"message": "App is healthy"}, 200
+    return {"message": "App is healthy"}
 
 
-@app.get("/greet/{name}")
-async def greet(name: str, age: Optional[int] = None) -> str:
-    if not age:
-        return f"Hello {name}"
-    return f"Hello {name}, you are {age} years old"
+@app.get("/books", response_model=List[Book])
+async def get_all_books() -> list:
+    """Returns a list of all available books"""
+    with open("books.json", "r") as f:
+        books = json.load(f)
+    return books
 
 
-@app.post("/create_book")
-async def create_book(data: BookCreateModel):
-    return {"Book Title": data.title, "Book Author": data.author}
+@app.post("/books")
+async def create_book():
+    """Create a new book"""
+    return
 
 
-@app.get("/get_headers", status_code=200)
-async def get_headers(
-    accept: str = Header(None),
-    content_type: str = Header(None),
-    user_agent: str = Header(None),
-):
-    return {"ACCEPT": accept, "CONTENT-TYPE": content_type, "USER-AGENT": user_agent}
+@app.put("/book/{book_id}")
+async def update_book():
+    """Update a book"""
+    return
+
+
+@app.delete("/book/{book_id}")
+async def delete_book():
+    """delete a book"""
+    return
